@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import { Form, Text } from 'react-form';
 import pnp from 'sp-pnp-js';
-
+import $ from 'jquery';
 
 class InputForm extends Component {
     constructor(props) {
         super(props);
-
         this.state = { value: "" }
-
+        
         //this.handleChange = this.handleChange.bind(this);
         //this.handleSubmit = this.handleSubmit.bind(this);
-        
     }
     
 
@@ -28,14 +26,38 @@ class InputForm extends Component {
 
     retrieveList() {
         // get all the items from a list
-    pnp.sp.web.lists.getByTitle("Players").items.get().then((items) => {
+
+        /*var ctx = new SP.ClientContext.get_current();
+
+        var targetList = ctx.get_web().get_lists().getByTitle('Players');
+        var query = SP.CamlQuery.createAllItemsQuery();
+        var listItems;
+        listItems = targetList.getItems(query);
+        
+        ctx.loadQuery(listItems); // load query returns an array 
+
+        ctx.executeQueryAsync(  
+        function(){ 
+        var items = [];
+        var listEnum = listItems.getEnumerator();
+         
+        while (listEnum.moveNext()) {
+            var item = listEnum.get_current();
+            items.push('ID: ' + item.get_id() + ' Title: ' + item.get_item('Title'));
+        }
+         
+        alert(items.join("\n")); 
+    }, 
+    function(sender, args){ alert('Error: ' + args.get_message()); }
+);*/
+    /*pnp.sp.web.lists.getByTitle("Players").items.get().then((items) => {
 
     console.log(items);
     var itemList = items.getEnumerator();
     while(itemList.moveNext()){
-        console.log(item.get_current());
+        console.log(items.get_current());
     }
-    });
+    });*/
 
 
     }

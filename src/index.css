@@ -3,3 +3,17 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+table {
+  border: 2px solid cornflowerblue;
+  width : 70%;
+  font-size: large;
+  text-align: center;
+  align-content: center;
+}
+
+td{
+  padding: 10px;
+  border: 1px solid cornflowerblue;
+}
+

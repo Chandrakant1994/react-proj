@@ -4,7 +4,7 @@ body {
   font-family: sans-serif;
 }
 
-table {
+/*table {
   border: 2px solid cornflowerblue;
   width : 70%;
   font-size: large;
@@ -12,8 +12,26 @@ table {
   align-content: center;
 }
 
-td{
-  padding: 10px;
-  border: 1px solid cornflowerblue;
+input{
+  display : block;
+  padding : 7px !important;
+  border : 1px solid #ddd;
+  border-radius: 5px;
 }
 
+.form{
+  background: lightsteelblue;
+  padding: 7px;
+  width : 60%;
+  border-radius: 10px;
+}
+
+td{
+  padding: 10px;
+ /* border: 1px solid cornflowerblue;
+}*/
+
+#sideNavBox{
+  display: none;
+  visibility: hidden;
+}

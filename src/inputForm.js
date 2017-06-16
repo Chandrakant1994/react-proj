@@ -128,6 +128,7 @@ class InputForm extends Component {
         };
         spRequest.send();
 
+        
         var spFieldRequest = new XMLHttpRequest();
         spFieldRequest.open('GET', "/sites/dev/_api/web/lists/getbytitle('" + this.selectBox.value + "')/fields?$filter=Hidden eq false and ReadOnlyField eq false and (FromBaseType eq false or Required eq true)", true); // and FromBaseType eq false
         spFieldRequest.setRequestHeader("Accept", "application/json");
@@ -155,9 +156,9 @@ class InputForm extends Component {
             type: "POST",
             data: JSON.stringify({
                 '__metadata': { 'type': 'SP.Data.PlayersListItem' },
-                'Title': event.target.childNodes[1].value,
-                'Age': event.target.childNodes[2].value,
-                'Department': event.target.childNodes[3].value
+                'Title': event.target.childNodes[0].childNodes[1].value,
+                'Age': event.target.childNodes[0].childNodes[2].value,
+                'Department': event.target.childNodes[0].childNodes[3].value
             }),
             headers: {
                 "accept": "application/json;odata=verbose",
@@ -260,14 +261,13 @@ class Form extends React.Component {
     render() {
         return (
             <form onSubmit={this.props.onSubmit} className="form">
-                <label>
-                    Enter the Players detail :
-                </label>
-                <input type="text" id="name" placeholder="Name" />
-
-                <input type="text" id="age" placeholder="Age" />
-                <input type="text" id="department" placeholder="Department" />
-                <input type="submit" id="submit" />
+                <div className = "form-group col-md-3" >
+                    <label className = "label label-default"> <h4>  Enter Player Details : </h4>  </label>
+                <input type="text" id="name" placeholder="Name" className = "form-control" />
+                <input type="text" id="age" placeholder="Age" className = "form-control"/>
+                <input type="text" id="department" placeholder="Department" className = "form-control" />
+                <input type="submit" id="submit" className = "btn btn-info" />
+                </div>
             </form>
         );
     }
@@ -293,11 +293,13 @@ class Select extends React.Component {
 
     render() {
         return (
-            <select onChange={this.props.onChange}  id="selectBox" className = "dropdown">
+            <div className = "form-group col-md-2">
+            <select onChange={this.props.onChange}  id="selectBox" className = "form-control">
                 {this.props.children.lists && this.props.children.lists.map(function (object) {
                     return <option value={object.Title}>{object.Title}</option>
                 }, this)}
             </select>
+            </div>
         )
     }
 }

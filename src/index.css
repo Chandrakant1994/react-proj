@@ -31,6 +31,10 @@ td{
  /* border: 1px solid cornflowerblue;
 }*/
 
+.form-group{
+  margin-bottom: 10px;
+}
+
 #sideNavBox{
   display: none;
   visibility: hidden;

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 //import { Form, Text } from 'react-form';
 import * as ReactBootstrap from 'react-bootstrap';
-import pnp from 'sp-pnp-js';
+//import pnp from 'sp-pnp-js';
 import $ from 'jquery';
 
 /* global SP : true */
@@ -13,7 +13,7 @@ class InputForm extends Component {
         this.state = {
             value: "",
             items: null,
-            fields : null,
+            fields: null,
             title: null,
             age: null,
             department: null,
@@ -23,7 +23,7 @@ class InputForm extends Component {
         //this.handleChange = this.handleChange.bind(this);
         //this.handleSubmit = this.handleSubmit.bind(this);
         //this.handleDelete = this.handleDelete.bind(this);
-        
+
     }
 
 
@@ -66,15 +66,15 @@ class InputForm extends Component {
     componentDidMount() {
         console.log("InputForm Did Mount");
         this.selectBox = document.getElementById('selectBox');
-        
+
         //this.RetrieveListData();
     }
 
-    componentWillUpdate(){
+    componentWillUpdate() {
         console.log("InputForm Will Update");
     }
 
-    componentDidUpdate(){
+    componentDidUpdate() {
         //this.RetrieveListData();
         console.log("InputForm Did Update");
     }
@@ -84,7 +84,7 @@ class InputForm extends Component {
 
 
     RetrieveAllLists() {
-        var reactHandler = this; 
+        var reactHandler = this;
         var spRequest = new XMLHttpRequest();
         spRequest.open('GET', "/sites/dev/_api/Web/Lists/?$filter=Hidden eq false and BaseTemplate eq 100", true);
         spRequest.setRequestHeader("Accept", "application/json");
@@ -108,7 +108,10 @@ class InputForm extends Component {
 
     RetrieveListData() {
         var reactHandler = this;
-        
+
+        this.setState({
+            selectedList: this.selectBox.value
+        })
         var spRequest = new XMLHttpRequest();
         spRequest.open('GET', "/sites/dev/_api/web/lists/getbytitle('" + this.selectBox.value + "')/items", true);
         spRequest.setRequestHeader("Accept", "application/json");
@@ -128,7 +131,7 @@ class InputForm extends Component {
         };
         spRequest.send();
 
-        
+
         var spFieldRequest = new XMLHttpRequest();
         spFieldRequest.open('GET', "/sites/dev/_api/web/lists/getbytitle('" + this.selectBox.value + "')/fields?$filter=Hidden eq false and ReadOnlyField eq false and (FromBaseType eq false or Required eq true)", true); // and FromBaseType eq false
         spFieldRequest.setRequestHeader("Accept", "application/json");
@@ -151,14 +154,20 @@ class InputForm extends Component {
     }
 
     CreateListItem(event) {
+        var body = this.state.fields.map(function(object){
+            return '' + object.InternalName + ' : ' + document.getElementById('' + object.InternalName + '') + ',' 
+        })
+        
         $.ajax({
             url: "/sites/dev/_api/web/lists/GetByTitle('" + this.selectBox.value + "')/items",
             type: "POST",
             data: JSON.stringify({
-                '__metadata': { 'type': 'SP.Data.PlayersListItem' },
-                'Title': event.target.childNodes[0].childNodes[1].value,
+                '__metadata': { 'type': 'SP.Data.' + this.selectBox.value +'ListItem' },
+                body
+                
+                /*'Title': event.target.childNodes[0].childNodes[1].value,
                 'Age': event.target.childNodes[0].childNodes[2].value,
-                'Department': event.target.childNodes[0].childNodes[3].value
+                'Department': event.target.childNodes[0].childNodes[3].value*/
             }),
             headers: {
                 "accept": "application/json;odata=verbose",
@@ -227,11 +236,15 @@ class InputForm extends Component {
     render() {
         return (
             <div>
-                <Form onSubmit={this.handleSubmit.bind(this)} />
+                
 
-                <Select onChange={this.RetrieveListData.bind(this)}  ref='selectInput'>
+                <Select onChange={this.RetrieveListData.bind(this)} ref='selectInput'>
                     {this.state}
                 </Select>
+
+                <Form onSubmit={this.handleSubmit.bind(this)}> 
+                    {this.state}
+                </Form>
 
                 {this.state.items &&
                     <Tables onUpdateClick={this.handleUpdate.bind(this)} onDeleteClick={this.handleDelete.bind(this)}>{this.state}</Tables>
@@ -246,28 +259,49 @@ class Form extends React.Component {
         console.log("Form did mount")
     }
 
-    componentWillUpdate(){
+    componentWillUpdate() {
         console.log("Form will update")
     }
 
-    componentWillMount(){
+    componentWillMount() {
         console.log("Form will Mount")
     }
 
-    componentDidUpdate(){
+    componentDidUpdate() {
         console.log("Form Did update")
     }
-    
+
     render() {
         return (
             <form onSubmit={this.props.onSubmit} className="form">
-                <div className = "form-group col-md-3" >
-                    <label className = "label label-default"> <h4>  Enter Player Details : </h4>  </label>
-                <input type="text" id="name" placeholder="Name" className = "form-control" />
-                <input type="text" id="age" placeholder="Age" className = "form-control"/>
-                <input type="text" id="department" placeholder="Department" className = "form-control" />
-                <input type="submit" id="submit" className = "btn btn-info" />
+                <div className="form-group col-md-4 panel panel-primary" >
+                    <div className = "panel panel-primary">
+                    <div className =  "panel-heading">
+                        <h3 className = "panel-title">Enter {this.props.children.selectedList} Details </h3>
+                        </div>
+                        <div className = "panel-body">
+                {this.props.children.fields && this.props.children.fields.map(function (object) {
+                    if (object["odata.type"] == "SP.FieldText") {
+                        return <div><label for = {object.InternalName}>{object.InternalName}</label>
+                        <input type="text" id={object.InternalName} className = "form-control form-group" placeholder = {object.InternalName} />
+                    </div>
+                    }
+                    else if (object["odata.type"] == "SP.FieldNumber")
+                        return <div><label for = {object.InternalName}>{object.InternalName}</label>
+                        <input type="number" id={object.InternalName} className = "form-control form-group" placeholder = {object.InternalName}/>
+                        </div>
+                })}
                 </div>
+                </div>
+                <input type="submit" id="submit" className="btn btn-info form-control" />
+                </div>
+                {/*
+                    <label className="label label-default"> <h4>  Enter Player Details : </h4>  </label>
+                    <input type="text" id="name" placeholder="Name" className="form-control" />
+                    <input type="text" id="age" placeholder="Age" className="form-control" />
+                    <input type="text" id="department" placeholder="Department" className="form-control" />
+                    
+                */}
             </form>
         );
     }
@@ -279,26 +313,26 @@ class Select extends React.Component {
         console.log("select did mount")
     }
 
-    componentWillUpdate(){
+    componentWillUpdate() {
         console.log("select will update")
     }
 
-    componentWillMount(){
+    componentWillMount() {
         console.log("select will Mount")
     }
 
-    componentDidUpdate(){
+    componentDidUpdate() {
         console.log("select did update")
     }
 
     render() {
         return (
-            <div className = "form-group col-md-2">
-            <select onChange={this.props.onChange}  id="selectBox" className = "form-control">
-                {this.props.children.lists && this.props.children.lists.map(function (object) {
-                    return <option value={object.Title}>{object.Title}</option>
-                }, this)}
-            </select>
+            <div className="form-group col-md-2">
+                <select onChange={this.props.onChange} id="selectBox" className="form-control">
+                    {this.props.children.lists && this.props.children.lists.map(function (object) {
+                        return <option value={object.Title}>{object.Title}</option>
+                    }, this)}
+                </select>
             </div>
         )
     }
@@ -309,25 +343,25 @@ class Tables extends React.Component {
         console.log("Table did mount")
     }
 
-    componentWillUpdate(){
+    componentWillUpdate() {
         console.log("Table will update")
     }
 
-    componentWillMount(){
+    componentWillMount() {
         console.log("Table will Mount")
     }
 
-    componentDidUpdate(){
+    componentDidUpdate() {
         console.log("Table Did update")
     }
 
     render() {
         return (
-            <table className="table">
+            <table className="table table-striped">
                 <thead className="thead-inverse">
                     <tr>
-                        {this.props.children.fields.map(function (object,i){
-                           return <th>{object.InternalName}</th>
+                        {this.props.children.fields.map(function (object, i) {
+                            return <th>{object.InternalName}</th>
                         })}
 
                         <th>Action Item</th>
@@ -337,11 +371,11 @@ class Tables extends React.Component {
                 </thead>
                 {this.props.children.items.map(function (object, i) {
                     return <tr>
-                        {this.props.children.fields.map(function (field){
+                        {this.props.children.fields.map(function (field) {
                             return <td contentEditable>{object[field.InternalName]}</td>
                         })}
-                        <td> <input type="button" value="Update" id = {object.Id} onClick={this.props.onUpdateClick} /></td>
-                        <td> <input type="button" value="Delete" id = {object.Id} onClick={this.props.onDeleteClick} /></td>
+                        <td> <input type="button" value="Update" id={object.Id} onClick={this.props.onUpdateClick} /></td>
+                        <td> <input type="button" value="Delete" id={object.Id} onClick={this.props.onDeleteClick} /></td>
                     </tr>
                 }, this)}
 
